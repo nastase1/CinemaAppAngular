@@ -12,5 +12,6 @@ namespace CinemaApp.Domain.Entities
         public int CinemaId { get; set; }
         public required Cinema Cinema { get; set; }
         public ICollection<Seat> Seats { get; set; } = new List<Seat>();
+        public ICollection<Showtime> Showtimes { get; set; } = new List<Showtime>();
     }
 }

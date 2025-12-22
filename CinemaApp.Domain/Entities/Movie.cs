@@ -1,17 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CinemaApp.Domain.Common;
 
 namespace CinemaApp.Domain.Entities
 {
     public class Movie : BaseEntity
     {
-        public required string Title { get; set; }
-        public string? Description { get; set; }
-        public int DurtationInMinutes { get; set; }
-        public required string Genre { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int DurationMinutes { get; set; }
         public DateTime ReleaseDate { get; set; }
+        public string? PosterUrl { get; set; }
+        public string? TrailerUrl { get; set; }
+        public double Rating { get; set; } 
+
+        public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();
+        public ICollection<MovieActor> MovieActors { get; set; } = new List<MovieActor>();
+        public ICollection<MovieDirector> MovieDirectors { get; set; } = new List<MovieDirector>();
+        public ICollection<Showtime> Showtimes { get; set; } = new List<Showtime>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

@@ -14,6 +14,7 @@ namespace CinemaApp.Domain.Entities
         public decimal TotalPrice { get; set; } 
         public DateTime BookingDate { get; set; } = DateTime.UtcNow;
         public int UserId { get; set; }
+        public User User { get; set; } = null!;
         public required Showtime Showtime { get; set; }
 
         public ICollection<Ticket> Tickets {get; set;} = new List<Ticket>();

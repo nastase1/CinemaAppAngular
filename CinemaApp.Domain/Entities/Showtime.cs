@@ -14,6 +14,8 @@ namespace CinemaApp.Domain.Entities
         public required Movie Movie { get; set; }
         public int HallId { get; set; }
         public required Hall Hall { get; set; }
+
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public bool IsUpcoming => StartTime > DateTime.UtcNow;
     }
 }
