@@ -9,30 +9,38 @@ namespace CinemaApp.Infrastructure.Seeders
         {
             if (context.Cinemas.Any()) return;
 
-            // 1. Cinema
             var cinema = new Cinema 
             { 
                 Name = "Cinema City Cotroceni", 
-                City = "București", 
-                Address = "Vasile Milea 4" 
+                Location = "AFI Cotroceni",
             };
+            
             await context.Cinemas.AddAsync(cinema);
-            await context.SaveChangesAsync();
 
-            // 2. Hall
-            var hall = new Hall { Name = "Sala 1", CinemaId = cinema.Id };
+            await context.SaveChangesAsync(); 
+
+
+            var hall = new Hall 
+            { 
+                Name = "Sala 1", 
+                Cinema = cinema 
+            };
+            
             await context.Halls.AddAsync(hall);
             await context.SaveChangesAsync();
 
-            // 3. Seats (10 scaune)
             var seats = new List<Seat>();
             for(int i=1; i<=10; i++)
             {
-                seats.Add(new Seat { HallId = hall.Id, Row = 1, Number = i });
+                seats.Add(new Seat 
+                { 
+                    Hall = hall, 
+                    Row = '1', 
+                    Number = i 
+                });
             }
             await context.Seats.AddRangeAsync(seats);
 
-            // 4. Movie & Genre
             var genre = new Genre { Name = "Sci-Fi" };
             await context.Genres.AddAsync(genre);
             
@@ -45,10 +53,12 @@ namespace CinemaApp.Infrastructure.Seeders
                 Rating = 9.0 
             };
             await context.Movies.AddAsync(movie);
-            await context.SaveChangesAsync();
+            
+            await context.SaveChangesAsync(); 
 
-            // 5. Junction
+
             await context.MovieGenres.AddAsync(new MovieGenre { MovieId = movie.Id, GenreId = genre.Id });
+            
             await context.SaveChangesAsync();
         }
     }
