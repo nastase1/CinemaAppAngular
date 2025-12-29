@@ -10,8 +10,19 @@ namespace CinemaApp.Domain.Entities
     {
         public decimal Price { get; set; }
         public int SeatId { get; set; }
-        public required Seat Seat { get; set; }
+        public Seat Seat { get; set; }
         public int BookingId { get; set; }
-        public required Booking Booking { get; set; }
+        public Booking Booking { get; set; }
+
+        private Ticket() { }
+
+        public Ticket(Booking booking, Seat seat,decimal price)
+        {
+            Booking = booking;
+            BookingId = booking.Id;
+            Seat = seat;
+            SeatId = seat.Id;
+            Price = price;
+        }
     }
 }
