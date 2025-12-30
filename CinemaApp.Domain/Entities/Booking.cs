@@ -16,7 +16,7 @@ namespace CinemaApp.Domain.Entities
         public int UserId { get; set; }
         public User User { get; set; } = null!;
         public int ShowtimeId { get; set; }
-        public required Showtime Showtime { get; set; }
+        public Showtime Showtime { get; set; }
 
         private readonly List<Ticket> _tickets = new ();
         public IReadOnlyCollection<Ticket> Tickets => _tickets.AsReadOnly();

@@ -8,7 +8,7 @@ namespace CinemaApp.Shared.DTOs.Showtime
     public class SeatDto
     {
         public int Id { get; set; }
-        public string Row { get; set; } = string.Empty;
+        public char Row { get; set; }
         public int Number { get; set; }
         public string Type { get; set; } = "Regular";
 
