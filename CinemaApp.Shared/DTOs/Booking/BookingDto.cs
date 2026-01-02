@@ -10,11 +10,11 @@ namespace CinemaApp.Shared.DTOs.Booking
         public int BookingId { get; set; }
         public string ReferenceCode { get; set; } = string.Empty;
         public string MovieTitle { get; set; } = string.Empty;
-        public DateTime Showtime { get; set; }
         public string HallName { get; set; } = string.Empty;
-        
+        public DateTime ShowtimeStart { get; set; }
+
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } = string.Empty;
-        public List<string> SeatNumbers { get; set; } = new();
+        public List<string> Seats { get; set; } = new();
     }
 }

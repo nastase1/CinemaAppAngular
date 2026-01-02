@@ -9,7 +9,7 @@ namespace CinemaApp.Domain.Entities
 {
     public class Booking : BaseEntity
     {
-        public string? ReferenceCode { get; set; }
+        public string ReferenceCode { get; set; } 
         public BookingStatus Status { get; set; }
         public decimal TotalPrice { get; set; } 
         public DateTime BookingDate { get; set; } = DateTime.UtcNow;
@@ -23,16 +23,17 @@ namespace CinemaApp.Domain.Entities
 
         public Booking(string referenceCode, int userId, Showtime showtime)
         {
-            // Passed in values
+            if(string.IsNullOrWhiteSpace(referenceCode))
+                throw new ArgumentException("Reference code cannot be null or empty.", nameof(referenceCode));
+
             ReferenceCode = referenceCode;
             UserId = userId;
             Showtime = showtime;
             ShowtimeId = showtime.Id; 
 
-            // DEFAULTS (This is "what happened" to them)
-            BookingDate = DateTime.UtcNow;      // Always creation time
-            Status = BookingStatus.Pending;     // Start as Pending (or Confirmed)
-            TotalPrice = 0;                     // Start at 0, grows as tickets are added
+            BookingDate = DateTime.UtcNow;  
+            Status = BookingStatus.Pending;     
+            TotalPrice = 0;                     
         }
         public void AddTicket(Seat seat, decimal price)
         {

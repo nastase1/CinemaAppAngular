@@ -10,7 +10,7 @@ namespace CinemaApp.Domain.Entities
         public DateTime ReleaseDate { get; set; }
         public string? PosterUrl { get; set; }
         public string? TrailerUrl { get; set; }
-        public double Rating { get; set; } 
+        public double Rating { get; set; }
 
         public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();
         public ICollection<MovieActor> MovieActors { get; set; } = new List<MovieActor>();

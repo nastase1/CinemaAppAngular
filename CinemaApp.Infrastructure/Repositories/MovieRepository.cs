@@ -16,5 +16,16 @@ namespace CinemaApp.Infrastructure.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+        
+        public async Task<Movie?> GetByIdWithDetailsAsync(int id)
+        {
+            return await _context.Movies
+                .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre)
+                .Include(m=>m.MovieActors).ThenInclude(ma=>ma.Actor)
+                .Include(m=>m.MovieDirectors).ThenInclude(md=>md.Director)
+                .Include(m=>m.Reviews)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+        }
     }
 }
