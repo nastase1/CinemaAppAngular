@@ -20,7 +20,7 @@ namespace CinemaApp.Infrastructure.Context
         public DbSet<Seat> Seats { get; set; }
         public DbSet<Showtime> Showtimes { get; set; }
         public DbSet<Booking> Bookings { get; set; }
-        public DbSet<BookedSeat> BookedSeats { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Review> Reviews { get; set; }
         
         public DbSet<MovieActor> MovieActors { get; set; }
