@@ -37,5 +37,50 @@ namespace CinemaApp.Application.Services
 
             return ServiceResponse<UserProfileDto>.Ok(dto);
         }
+
+        public async Task<ServiceResponse<UserProfileDto>> GetUserByIdAsync(int userId)
+        {
+            return await GetProfileAsync(userId);
+        }
+
+        public async Task<ServiceResponse<IEnumerable<UserProfileDto>>> GetAllUsersAsync()
+        {
+            var users = await _userRepo.GetAllAsync();
+            var dtos = users.Select(user => new UserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                TotalBookings = user.Bookings.Count,
+                TotalReviews = user.Reviews.Count
+            });
+
+            return ServiceResponse<IEnumerable<UserProfileDto>>.Ok(dtos);
+        }
+
+        public async Task<ServiceResponse<UserProfileDto>> UpdateUserAsync(int userId, UserProfileDto userProfile)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null) return ServiceResponse<UserProfileDto>.Fail("User not found.");
+
+            user.FirstName = userProfile.FirstName;
+            user.LastName = userProfile.LastName;
+            user.Email = userProfile.Email;
+
+            await _userRepo.UpdateAsync(user);
+
+            return await GetProfileAsync(userId);
+        }
+
+        public async Task<ServiceResponse<bool>> DeleteUserAsync(int userId)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null) return ServiceResponse<bool>.Fail("User not found.");
+
+            await _userRepo.DeleteAsync(userId);
+            return ServiceResponse<bool>.Ok(true);
+        }
     }
 }

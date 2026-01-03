@@ -96,9 +96,91 @@ namespace CinemaApp.Application.Services
                 });
             }
 
-           
+
             await _movieRepo.AddAsync(movie);
             return ServiceResponse<int>.Ok(movie.Id);
+        }
+
+        public async Task<ServiceResponse<List<MovieDetailsDto>>> GetNowShowingMoviesAsync()
+        {
+            var movies = await _movieRepo.GetAllAsync();
+            var now = DateTime.UtcNow;
+            var nowShowing = movies.Where(m => m.ReleaseDate <= now.AddMonths(1) && m.ReleaseDate >= now.AddMonths(-3))
+                .Select(m => new MovieDetailsDto
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
+                    DurationMinutes = m.DurationMinutes,
+                    PosterUrl = m.PosterUrl,
+                    TrailerUrl = m.TrailerUrl,
+                    Rating = m.Rating,
+                    ReleaseDate = m.ReleaseDate
+                }).ToList();
+            return ServiceResponse<List<MovieDetailsDto>>.Ok(nowShowing);
+        }
+
+        public async Task<ServiceResponse<List<MovieDetailsDto>>> GetComingSoonMoviesAsync()
+        {
+            var movies = await _movieRepo.GetAllAsync();
+            var now = DateTime.UtcNow;
+            var comingSoon = movies.Where(m => m.ReleaseDate > now)
+                .Select(m => new MovieDetailsDto
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
+                    DurationMinutes = m.DurationMinutes,
+                    PosterUrl = m.PosterUrl,
+                    TrailerUrl = m.TrailerUrl,
+                    Rating = m.Rating,
+                    ReleaseDate = m.ReleaseDate
+                }).ToList();
+            return ServiceResponse<List<MovieDetailsDto>>.Ok(comingSoon);
+        }
+
+        public async Task<ServiceResponse<List<MovieDetailsDto>>> SearchMoviesAsync(string query)
+        {
+            var movies = await _movieRepo.GetAllAsync();
+            var searchResults = movies.Where(m => m.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                                                   m.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Select(m => new MovieDetailsDto
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
+                    DurationMinutes = m.DurationMinutes,
+                    PosterUrl = m.PosterUrl,
+                    TrailerUrl = m.TrailerUrl,
+                    Rating = m.Rating,
+                    ReleaseDate = m.ReleaseDate
+                }).ToList();
+            return ServiceResponse<List<MovieDetailsDto>>.Ok(searchResults);
+        }
+
+        public async Task<ServiceResponse<bool>> UpdateMovieAsync(int id, CreateMovieDto updateMovieDto)
+        {
+            var movie = await _movieRepo.GetByIdAsync(id);
+            if (movie == null) return ServiceResponse<bool>.Fail("Movie not found.");
+
+            movie.Title = updateMovieDto.Title;
+            movie.Description = updateMovieDto.Description;
+            movie.DurationMinutes = updateMovieDto.DurationMinutes;
+            movie.ReleaseDate = updateMovieDto.ReleaseDate;
+            movie.PosterUrl = updateMovieDto.PosterUrl;
+            movie.TrailerUrl = updateMovieDto.TrailerUrl;
+
+            await _movieRepo.UpdateAsync(movie);
+            return ServiceResponse<bool>.Ok(true);
+        }
+
+        public async Task<ServiceResponse<bool>> DeleteMovieAsync(int id)
+        {
+            var movie = await _movieRepo.GetByIdAsync(id);
+            if (movie == null) return ServiceResponse<bool>.Fail("Movie not found.");
+
+            await _movieRepo.DeleteAsync(id);
+            return ServiceResponse<bool>.Ok(true);
         }
     }
 }
