@@ -148,3 +148,7 @@ Desktop.ini
 *.swp
 *.bak
 *.orig
+
+
+# Migrations
+Migrations/
