@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -109,16 +110,20 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   `]
 })
 export class NavbarComponent {
+  private authService = inject(AuthService);
+  
   mobileMenuOpen = signal(false);
-  isLoggedIn = signal(false); // Will be connected to AuthService later
+  
+  // Use AuthService signals
+  isLoggedIn = this.authService.isAuthenticated;
+  currentUser = this.authService.currentUser;
 
   toggleMenu() {
     this.mobileMenuOpen.update(v => !v);
   }
 
   logout() {
-    // Will implement with AuthService
-    this.isLoggedIn.set(false);
-    console.log('Logout clicked');
+    this.authService.logout();
+    this.mobileMenuOpen.set(false);
   }
 }
