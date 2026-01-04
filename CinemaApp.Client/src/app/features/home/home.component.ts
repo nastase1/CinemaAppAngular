@@ -68,7 +68,7 @@ import { Movie } from '../../core/models/movie.models';
               <!-- Action Buttons -->
               <div class="flex flex-wrap gap-4 pt-4 animate-slide-up" style="animation-delay: 0.4s">
                 <button 
-                  [routerLink]="['/movies', featuredMovie.id]"
+                  [routerLink]="['/booking', featuredMovie.id]"
                   class="btn-neon ripple px-8 py-4 text-lg font-semibold group">
                   <i class="fas fa-ticket-alt mr-2 group-hover:animate-bounce"></i>
                   Book Tickets

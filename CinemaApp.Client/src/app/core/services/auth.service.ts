@@ -46,7 +46,10 @@ export class AuthService {
       `${environment.apiUrl}/Authentication/login`,
       credentials
     ).pipe(
-      tap(response => this.handleAuthSuccess(response)),
+      tap(response => {
+        console.log('Login response:', response);
+        this.handleAuthSuccess(response);
+      }),
       catchError(error => this.handleError(error)),
       tap(() => this.isLoadingSignal.set(false))
     );
@@ -89,9 +92,11 @@ export class AuthService {
    * Handle successful authentication
    */
   private handleAuthSuccess(response: AuthResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, response.token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
-    this.currentUserSignal.set(response.user);
+    console.log('Storing token:', response.data.token);
+    console.log('Storing user:', response.data.user);
+    localStorage.setItem(this.TOKEN_KEY, response.data.token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(response.data.user));
+    this.currentUserSignal.set(response.data.user);
   }
 
   /**

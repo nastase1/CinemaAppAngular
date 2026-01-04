@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
+import { BookingComponent } from './features/booking/booking.component';
 import { authGuard, guestGuard } from './core/guards/auth.guards';
 
 export const routes: Routes = [
@@ -18,6 +19,12 @@ export const routes: Routes = [
     path: 'auth/register', 
     component: RegisterComponent,
     canActivate: [guestGuard]
+  },
+  
+  // Booking route
+  { 
+    path: 'booking/:id', 
+    component: BookingComponent
   },
   
   // Placeholder routes (will be implemented in later steps)

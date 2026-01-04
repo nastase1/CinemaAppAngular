@@ -8,7 +8,7 @@ import { Movie } from '../../../core/models/movie.models';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="movie-card group cursor-pointer animate-fade-in">
+    <div class="movie-card group animate-fade-in">
       <div class="relative overflow-hidden rounded-2xl aspect-[2/3] bg-midnight-800">
         <!-- Poster Image -->
         <img 
@@ -22,18 +22,18 @@ import { Movie } from '../../../core/models/movie.models';
         
         <!-- Rating Badge -->
         @if (movie.rating > 0) {
-          <div class="absolute top-4 right-4 bg-cinema-red/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center space-x-1 animate-pop">
+          <div class="absolute top-4 right-4 bg-cinema-red/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center space-x-1 animate-pop z-10">
             <i class="fas fa-star text-yellow-400 text-sm"></i>
             <span class="text-white font-bold text-sm">{{ movie.rating }}</span>
           </div>
         } @else {
-          <div class="absolute top-4 right-4 bg-neon-purple/90 backdrop-blur-sm px-3 py-1 rounded-full animate-pop">
+          <div class="absolute top-4 right-4 bg-neon-purple/90 backdrop-blur-sm px-3 py-1 rounded-full animate-pop z-10">
             <span class="text-white font-bold text-sm">Coming Soon</span>
           </div>
         }
         
         <!-- Hover Content -->
-        <div class="absolute inset-0 flex flex-col justify-end p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+        <div class="absolute inset-0 flex flex-col justify-end p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 z-10">
           <!-- Title -->
           <h3 class="text-xl font-display font-bold text-white mb-2 drop-shadow-lg">
             {{ movie.title }}
@@ -58,15 +58,15 @@ import { Movie } from '../../../core/models/movie.models';
           </div>
           
           <!-- Action Buttons -->
-          <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
-            <button 
-              [routerLink]="['/movies', movie.id]"
-              class="flex-1 bg-cinema-red hover:bg-cinema-red-dark text-white py-2 px-4 rounded-lg font-semibold transition-colors duration-300 flex items-center justify-center space-x-2">
+          <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200 pointer-events-auto">
+            <a 
+              [routerLink]="['/booking', movie.id]"
+              class="flex-1 bg-cinema-red hover:bg-cinema-red-dark text-white py-2 px-4 rounded-lg font-semibold transition-colors duration-300 flex items-center justify-center space-x-2 relative z-20">
               <i class="fas fa-ticket-alt"></i>
               <span>Book Now</span>
-            </button>
+            </a>
             @if (movie.trailerUrl) {
-              <button class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 rounded-lg transition-colors duration-300">
+              <button class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 rounded-lg transition-colors duration-300 relative z-20">
                 <i class="fas fa-play"></i>
               </button>
             }

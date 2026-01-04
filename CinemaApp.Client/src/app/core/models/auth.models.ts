@@ -13,9 +13,13 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string;
-  expiration: string;
-  user: User;
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    expiration: string;
+    user: User;
+  };
 }
 
 export interface User {
