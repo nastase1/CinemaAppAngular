@@ -43,7 +43,7 @@ export class AuthService {
     this.isLoadingSignal.set(true);
     
     return this.http.post<AuthResponse>(
-      `${environment.apiUrl}/auth/login`,
+      `${environment.apiUrl}/Authentication/login`,
       credentials
     ).pipe(
       tap(response => this.handleAuthSuccess(response)),
@@ -59,7 +59,7 @@ export class AuthService {
     this.isLoadingSignal.set(true);
     
     return this.http.post<AuthResponse>(
-      `${environment.apiUrl}/auth/register`,
+      `${environment.apiUrl}/Authentication/register`,
       data
     ).pipe(
       tap(response => this.handleAuthSuccess(response)),

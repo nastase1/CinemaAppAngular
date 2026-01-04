@@ -19,4 +19,13 @@ export const routes: Routes = [
     component: RegisterComponent,
     canActivate: [guestGuard]
   },
+  
+  // Placeholder routes (will be implemented in later steps)
+  { path: 'movies', component: HomeComponent }, // TODO: Create movies component
+  { path: 'movies/:id', component: HomeComponent }, // TODO: Create movie details component
+  { path: 'showtimes', component: HomeComponent }, // TODO: Create showtimes component
+  { path: 'profile', component: HomeComponent }, // TODO: Create profile component
+  
+  // Catch all - redirect to home
+  { path: '**', redirectTo: '/home' }
 ];
