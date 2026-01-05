@@ -7,9 +7,9 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
+  confirmPassword: string;
   firstName: string;
   lastName: string;
-  phoneNumber?: string;
 }
 
 export interface AuthResponse {
@@ -28,7 +28,6 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
-  phoneNumber?: string;
 }
 
 export interface ApiError {

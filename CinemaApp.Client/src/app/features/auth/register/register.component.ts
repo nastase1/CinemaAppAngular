@@ -84,22 +84,6 @@ import { RegisterRequest } from '../../../core/models/auth.models';
               />
             </div>
 
-            <!-- Phone Input -->
-            <div class="mb-6">
-              <label class="block text-sm font-medium text-slate-300 mb-2">
-                <i class="fas fa-phone mr-2 text-cinema-red"></i>
-                Phone Number (Optional)
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                [(ngModel)]="formData().phoneNumber"
-                class="glass-input"
-                placeholder="+1234567890"
-                [disabled]="isLoading()"
-              />
-            </div>
-
             <!-- Password Input -->
             <div class="mb-6">
               <label class="block text-sm font-medium text-slate-300 mb-2">
@@ -110,6 +94,7 @@ import { RegisterRequest } from '../../../core/models/auth.models';
                 type="password"
                 name="password"
                 [(ngModel)]="formData().password"
+                #password="ngModel"
                 required
                 minlength="6"
                 class="glass-input"
@@ -117,6 +102,29 @@ import { RegisterRequest } from '../../../core/models/auth.models';
                 [disabled]="isLoading()"
               />
               <p class="text-xs text-slate-500 mt-2">Minimum 6 characters</p>
+            </div>
+
+            <!-- Confirm Password Input -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-slate-300 mb-2">
+                <i class="fas fa-lock mr-2 text-cinema-red"></i>
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                [(ngModel)]="formData().confirmPassword"
+                required
+                class="glass-input"
+                placeholder="••••••••"
+                [disabled]="isLoading()"
+              />
+              @if (formData().password && formData().confirmPassword && formData().password !== formData().confirmPassword) {
+                <p class="text-xs text-red-400 mt-2">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  Passwords do not match
+                </p>
+              }
             </div>
 
             <!-- Terms & Conditions -->
@@ -197,9 +205,9 @@ export class RegisterComponent {
   formData = signal<RegisterRequest>({
     email: '',
     password: '',
+    confirmPassword: '',
     firstName: '',
-    lastName: '',
-    phoneNumber: ''
+    lastName: ''
   });
 
   acceptedTerms = false;
@@ -210,6 +218,12 @@ export class RegisterComponent {
     if (!this.acceptedTerms) {
       this.errorMessage.set('Please accept the terms and conditions');
       this.toastService.warning('Please accept the terms and conditions');
+      return;
+    }
+
+    if (this.formData().password !== this.formData().confirmPassword) {
+      this.errorMessage.set('Passwords do not match');
+      this.toastService.error('Passwords do not match');
       return;
     }
 

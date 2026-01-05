@@ -14,7 +14,8 @@ namespace CinemaApp.Infrastructure.Repositories
         {
             return await _context.Showtimes
                 .Where(s => s.MovieId == movieId)
-                .Include(s => s.Hall) 
+                .Include(s => s.Hall)
+                .Include(s => s.Movie)
                 .ToListAsync();
         }
 
@@ -22,8 +23,10 @@ namespace CinemaApp.Infrastructure.Repositories
         {
             return await _context.Showtimes
                 .Include(s => s.Hall)
-
-                .Include(s => s.Bookings) 
+                    .ThenInclude(h => h.Seats)
+                .Include(s => s.Movie)
+                .Include(s => s.Bookings)
+                    .ThenInclude(b => b.Tickets)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
@@ -32,7 +35,7 @@ namespace CinemaApp.Infrastructure.Repositories
             return await _context.Showtimes
                 .Where(s => s.StartTime.Date == date.Date)
                 .Include(s => s.Hall)
-                .Include(s => s.Movie) 
+                .Include(s => s.Movie)
                 .ToListAsync();
         }
     }

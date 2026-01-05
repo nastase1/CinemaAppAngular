@@ -27,10 +27,10 @@ namespace CinemaApp.Application.Services
                 Id = m.Id,
                 Title = m.Title,
                 Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
-                DurationMinutes = m.DurationMinutes,
+                DurationMinutes = m.Duration,
                 PosterUrl = m.PosterUrl,
                 TrailerUrl = m.TrailerUrl,
-                Rating = m.Rating
+                Rating = (double)m.Rating
             }).ToList();
             return ServiceResponse<List<MovieDetailsDto>>.Ok(dtos);
         }
@@ -45,9 +45,9 @@ namespace CinemaApp.Application.Services
                 Id = movie.Id,
                 Title = movie.Title,
                 Description = movie.Description,
-                DurationMinutes = movie.DurationMinutes,
+                DurationMinutes = movie.Duration,
                 ReleaseDate = movie.ReleaseDate,
-                Rating = movie.Rating,
+                Rating = (double)movie.Rating,
                 PosterUrl = movie.PosterUrl,
                 TrailerUrl = movie.TrailerUrl,
                 Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
@@ -64,11 +64,11 @@ namespace CinemaApp.Application.Services
             {
                 Title = request.Title,
                 Description = request.Description,
-                DurationMinutes = request.DurationMinutes,
+                Duration = request.DurationMinutes,
                 ReleaseDate = request.ReleaseDate,
                 PosterUrl = request.PosterUrl,
                 TrailerUrl = request.TrailerUrl,
-                Rating = 0.0
+                Rating = 0.0M
             };
 
             foreach (var genreId in request.GenreIds)
@@ -111,10 +111,10 @@ namespace CinemaApp.Application.Services
                     Id = m.Id,
                     Title = m.Title,
                     Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
-                    DurationMinutes = m.DurationMinutes,
+                    DurationMinutes = m.Duration,
                     PosterUrl = m.PosterUrl,
                     TrailerUrl = m.TrailerUrl,
-                    Rating = m.Rating,
+                    Rating = (double)m.Rating,
                     ReleaseDate = m.ReleaseDate
                 }).ToList();
             return ServiceResponse<List<MovieDetailsDto>>.Ok(nowShowing);
@@ -130,10 +130,10 @@ namespace CinemaApp.Application.Services
                     Id = m.Id,
                     Title = m.Title,
                     Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
-                    DurationMinutes = m.DurationMinutes,
+                    DurationMinutes = m.Duration,
                     PosterUrl = m.PosterUrl,
                     TrailerUrl = m.TrailerUrl,
-                    Rating = m.Rating,
+                    Rating = (double)m.Rating,
                     ReleaseDate = m.ReleaseDate
                 }).ToList();
             return ServiceResponse<List<MovieDetailsDto>>.Ok(comingSoon);
@@ -149,10 +149,10 @@ namespace CinemaApp.Application.Services
                     Id = m.Id,
                     Title = m.Title,
                     Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
-                    DurationMinutes = m.DurationMinutes,
+                    DurationMinutes = m.Duration,
                     PosterUrl = m.PosterUrl,
                     TrailerUrl = m.TrailerUrl,
-                    Rating = m.Rating,
+                    Rating = (double)m.Rating,
                     ReleaseDate = m.ReleaseDate
                 }).ToList();
             return ServiceResponse<List<MovieDetailsDto>>.Ok(searchResults);
@@ -165,7 +165,7 @@ namespace CinemaApp.Application.Services
 
             movie.Title = updateMovieDto.Title;
             movie.Description = updateMovieDto.Description;
-            movie.DurationMinutes = updateMovieDto.DurationMinutes;
+            movie.Duration = updateMovieDto.DurationMinutes;
             movie.ReleaseDate = updateMovieDto.ReleaseDate;
             movie.PosterUrl = updateMovieDto.PosterUrl;
             movie.TrailerUrl = updateMovieDto.TrailerUrl;

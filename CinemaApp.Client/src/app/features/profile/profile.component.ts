@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Booking } from '../../core/models/booking.models';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -55,8 +58,13 @@ import { Booking } from '../../core/models/booking.models';
               <!-- Bookings Tab -->
               @if (activeTab() === 'bookings') {
                 <div class="space-y-6">
-                  @if (mockBookings.length > 0) {
-                    @for (booking of mockBookings; track booking.id) {
+                  @if (isLoadingBookings()) {
+                    <div class="glass-card p-12 rounded-2xl text-center">
+                      <i class="fas fa-spinner fa-spin text-cinema-red text-6xl mb-4"></i>
+                      <p class="text-slate-400">Loading your bookings...</p>
+                    </div>
+                  } @else if (userBookings().length > 0) {
+                    @for (booking of userBookings(); track booking.id) {
                       <div class="glass-card p-6 rounded-2xl hover:bg-white/10 transition-all">
                         <div class="flex flex-col lg:flex-row gap-6">
                           <!-- QR Code -->
@@ -193,7 +201,8 @@ import { Booking } from '../../core/models/booking.models';
                         <label class="block text-slate-400 text-sm mb-2">First Name</label>
                         <input 
                           type="text" 
-                          [value]="authService.currentUser()?.firstName"
+                          [(ngModel)]="profileForm().firstName"
+                          name="firstName"
                           [disabled]="!editMode()"
                           class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white disabled:opacity-50">
                       </div>
@@ -201,7 +210,8 @@ import { Booking } from '../../core/models/booking.models';
                         <label class="block text-slate-400 text-sm mb-2">Last Name</label>
                         <input 
                           type="text" 
-                          [value]="authService.currentUser()?.lastName"
+                          [(ngModel)]="profileForm().lastName"
+                          name="lastName"
                           [disabled]="!editMode()"
                           class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white disabled:opacity-50">
                       </div>
@@ -211,28 +221,23 @@ import { Booking } from '../../core/models/booking.models';
                       <label class="block text-slate-400 text-sm mb-2">Email</label>
                       <input 
                         type="email" 
-                        [value]="authService.currentUser()?.email"
-                        [disabled]="!editMode()"
-                        class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white disabled:opacity-50">
-                    </div>
-
-                    <div>
-                      <label class="block text-slate-400 text-sm mb-2">Phone Number</label>
-                      <input 
-                        type="tel" 
-                        [value]="authService.currentUser()?.phoneNumber"
+                        [(ngModel)]="profileForm().email"
+                        name="email"
                         [disabled]="!editMode()"
                         class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white disabled:opacity-50">
                     </div>
 
                     @if (editMode()) {
                       <div class="flex gap-4 pt-4">
-                        <button type="submit" class="btn-neon ripple px-8 py-3">
+                        <button 
+                          type="submit" 
+                          (click)="saveProfile()"
+                          class="btn-neon ripple px-8 py-3">
                           Save Changes
                         </button>
                         <button 
                           type="button" 
-                          (click)="editMode.set(false)"
+                          (click)="cancelEdit()"
                           class="glass-card px-8 py-3 hover:bg-white/10 transition-all">
                           Cancel
                         </button>
@@ -251,23 +256,33 @@ import { Booking } from '../../core/models/booking.models';
                       <i class="fas fa-lock text-cinema-red mr-3"></i>
                       Change Password
                     </h3>
-                    <form class="space-y-4">
+                    <form (ngSubmit)="changePassword()" class="space-y-4">
                       <div>
                         <label class="block text-slate-400 text-sm mb-2">Current Password</label>
                         <input 
-                          type="password" 
+                          type="password"
+                          [(ngModel)]="passwordForm().currentPassword"
+                          name="currentPassword"
+                          required
                           class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white">
                       </div>
                       <div>
                         <label class="block text-slate-400 text-sm mb-2">New Password</label>
                         <input 
-                          type="password" 
+                          type="password"
+                          [(ngModel)]="passwordForm().newPassword"
+                          name="newPassword"
+                          required
+                          minlength="6"
                           class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white">
                       </div>
                       <div>
                         <label class="block text-slate-400 text-sm mb-2">Confirm New Password</label>
                         <input 
-                          type="password" 
+                          type="password"
+                          [(ngModel)]="passwordForm().confirmPassword"
+                          name="confirmPassword"
+                          required
                           class="w-full px-4 py-3 bg-midnight-800 border border-white/10 rounded-xl text-white">
                       </div>
                       <button type="submit" class="btn-neon ripple px-6 py-3">
@@ -351,10 +366,27 @@ import { Booking } from '../../core/models/booking.models';
 })
 export class ProfileComponent implements OnInit {
   protected authService = inject(AuthService);
+  private toastService = inject(ToastService);
+  private http = inject(HttpClient);
   private router = inject(Router);
 
   activeTab = signal<'bookings' | 'profile' | 'settings'>('bookings');
   editMode = signal(false);
+  
+  profileForm = signal({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
+  
+  passwordForm = signal({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  
+  userBookings = signal<Booking[]>([]);
+  isLoadingBookings = signal(false);
 
   mockBookings: Booking[] = [
     {
@@ -399,7 +431,113 @@ export class ProfileComponent implements OnInit {
     // Check if user is authenticated, if not redirect to login
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/auth/login']);
+      return;
     }
+    
+    // Load profile data
+    this.loadProfile();
+    // Load user bookings
+    this.loadBookings();
+  }
+  
+  loadProfile() {
+    const user = this.authService.currentUser();
+    if (user) {
+      this.profileForm.set({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || ''
+      });
+    }
+  }
+  
+  loadBookings() {
+    this.isLoadingBookings.set(true);
+    this.http.get<any>(`${environment.apiUrl}/Booking/user/my-bookings`).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.userBookings.set(response.data);
+        }
+        this.isLoadingBookings.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading bookings:', error);
+        // Use mock data as fallback
+        this.userBookings.set(this.mockBookings);
+        this.isLoadingBookings.set(false);
+      }
+    });
+  }
+  
+  saveProfile() {
+    const form = this.profileForm();
+    
+    this.http.put<any>(`${environment.apiUrl}/User/profile`, form).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastService.success('Profile updated successfully!');
+          this.editMode.set(false);
+          // Update current user in auth service
+          const currentUser = this.authService.currentUser();
+          if (currentUser) {
+            const updatedUser = {
+              ...currentUser,
+              ...form
+            };
+            localStorage.setItem('cinema_user', JSON.stringify(updatedUser));
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error updating profile:', error);
+        this.toastService.error(error.error?.message || 'Failed to update profile');
+      }
+    });
+  }
+  
+  cancelEdit() {
+    this.loadProfile();
+    this.editMode.set(false);
+  }
+  
+  changePassword() {
+    const form = this.passwordForm();
+    
+    // Validate passwords match
+    if (form.newPassword !== form.confirmPassword) {
+      this.toastService.error('New passwords do not match');
+      return;
+    }
+    
+    // Validate password length
+    if (form.newPassword.length < 6) {
+      this.toastService.error('Password must be at least 6 characters');
+      return;
+    }
+    
+    const payload = {
+      currentPassword: form.currentPassword,
+      newPassword: form.newPassword,
+      confirmPassword: form.confirmPassword
+    };
+    
+    this.http.post<any>(`${environment.apiUrl}/User/change-password`, payload).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastService.success('Password changed successfully!');
+          // Reset form
+          this.passwordForm.set({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error changing password:', error);
+        this.toastService.error(error.error?.message || 'Failed to change password');
+      }
+    });
   }
 
   logout() {

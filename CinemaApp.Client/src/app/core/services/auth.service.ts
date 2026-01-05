@@ -29,7 +29,7 @@ export class AuthService {
   currentUser = this.currentUserSignal.asReadonly();
   isLoading = this.isLoadingSignal.asReadonly();
   isAuthenticated = computed(() => this.currentUserSignal() !== null);
-  isAdmin = computed(() => this.currentUserSignal()?.role === 'Admin');
+  isAdmin = computed(() => this.currentUserSignal()?.role === '2' || this.currentUserSignal()?.role === 'Admin');
 
   constructor() {
     // Check token validity on service initialization
@@ -38,6 +38,18 @@ export class AuthService {
     console.log('User loaded from storage:', storedUser);
     const storedToken = this.getToken();
     console.log('Token loaded from storage:', storedToken ? 'Token exists' : 'No token');
+    
+    // Debug: Decode and display JWT token content
+    if (storedToken) {
+      try {
+        const payload = JSON.parse(atob(storedToken.split('.')[1]));
+        console.log('JWT Token Payload:', payload);
+        console.log('Role in token:', payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+      } catch (e) {
+        console.error('Failed to decode token:', e);
+      }
+    }
+    
     this.checkTokenExpiration();
   }
 

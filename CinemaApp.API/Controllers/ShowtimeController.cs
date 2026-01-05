@@ -65,7 +65,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> CreateShowtime([FromBody] CreateShowtimeDto createShowtimeDto)
         {
             if (!ModelState.IsValid)
@@ -80,7 +80,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> DeleteShowtime(int id)
         {
             var result = await _showtimeService.DeleteShowtimeAsync(id);

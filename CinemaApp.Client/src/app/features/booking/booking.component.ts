@@ -306,8 +306,7 @@ export class BookingComponent implements OnInit {
     
     const request = {
       showtimeId: showtime.id,
-      seatIds: selectedSeats.map(s => s.id),
-      totalAmount: this.bookingService.getTotalPrice()
+      seatIds: selectedSeats.map(s => s.id)
     };
     
     console.log('Creating booking:', request);

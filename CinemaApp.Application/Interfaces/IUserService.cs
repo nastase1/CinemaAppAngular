@@ -14,5 +14,6 @@ namespace CinemaApp.Application.Interfaces
         Task<ServiceResponse<IEnumerable<UserProfileDto>>> GetAllUsersAsync();
         Task<ServiceResponse<UserProfileDto>> UpdateUserAsync(int userId, UserProfileDto userProfile);
         Task<ServiceResponse<bool>> DeleteUserAsync(int userId);
+        Task<ServiceResponse<bool>> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
     }
 }

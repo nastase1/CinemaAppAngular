@@ -34,7 +34,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> GetUserById(int id)
         {
             var result = await _userService.GetUserByIdAsync(id);
@@ -46,7 +46,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> GetAllUsers()
         {
             var result = await _userService.GetAllUsersAsync();
@@ -73,10 +73,25 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> DeleteUser(int id)
         {
             var result = await _userService.DeleteUserAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+
+            var result = await _userService.ChangePasswordAsync(userId, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
 
             if (!result.Success)
                 return BadRequest(result);

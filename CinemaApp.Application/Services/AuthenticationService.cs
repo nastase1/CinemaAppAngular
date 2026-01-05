@@ -79,5 +79,50 @@ namespace CinemaApp.Application.Services
                 }
             });
         }
+
+        public async Task<ServiceResponse<bool>> ForgotPasswordAsync(string email)
+        {
+            var user = await _userRepo.GetByEmailAsync(email);
+            if (user == null)
+                return ServiceResponse<bool>.Fail("No account found with this email.");
+
+            // Generate 6-digit reset code
+            var random = new Random();
+            var resetCode = random.Next(100000, 999999).ToString();
+
+            // Set reset code and expiry (15 minutes)
+            user.ResetCode = resetCode;
+            user.ResetCodeExpiry = DateTime.UtcNow.AddMinutes(15);
+
+            await _userRepo.UpdateAsync(user);
+
+            // In a real application, you would send this code via email
+            // For now, we'll just log it (in production, use an email service)
+            Console.WriteLine($"Reset code for {email}: {resetCode}");
+
+            return ServiceResponse<bool>.Ok(true, "Reset code sent to your email. Please check your inbox.");
+        }
+
+        public async Task<ServiceResponse<bool>> ResetPasswordAsync(string email, string resetCode, string newPassword)
+        {
+            var user = await _userRepo.GetByEmailAsync(email);
+            if (user == null)
+                return ServiceResponse<bool>.Fail("Invalid email.");
+
+            if (string.IsNullOrEmpty(user.ResetCode) || user.ResetCode != resetCode)
+                return ServiceResponse<bool>.Fail("Invalid reset code.");
+
+            if (user.ResetCodeExpiry == null || user.ResetCodeExpiry < DateTime.UtcNow)
+                return ServiceResponse<bool>.Fail("Reset code has expired. Please request a new one.");
+
+            // Update password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.ResetCode = null;
+            user.ResetCodeExpiry = null;
+
+            await _userRepo.UpdateAsync(user);
+
+            return ServiceResponse<bool>.Ok(true, "Password reset successfully. You can now login with your new password.");
+        }
     }
 }

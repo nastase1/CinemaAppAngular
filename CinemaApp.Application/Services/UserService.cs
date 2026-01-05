@@ -82,5 +82,23 @@ namespace CinemaApp.Application.Services
             await _userRepo.DeleteAsync(userId);
             return ServiceResponse<bool>.Ok(true);
         }
+
+        public async Task<ServiceResponse<bool>> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null) return ServiceResponse<bool>.Fail("User not found.");
+
+            // Verify current password
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+            {
+                return ServiceResponse<bool>.Fail("Current password is incorrect.");
+            }
+
+            // Hash new password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _userRepo.UpdateAsync(user);
+
+            return ServiceResponse<bool>.Ok(true, "Password changed successfully.");
+        }
     }
 }

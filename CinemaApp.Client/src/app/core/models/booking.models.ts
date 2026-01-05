@@ -45,7 +45,6 @@ export interface Seat {
 export interface BookingRequest {
   showtimeId: number;
   seatIds: number[];
-  totalAmount: number;
 }
 
 export interface Booking {

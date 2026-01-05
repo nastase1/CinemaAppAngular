@@ -6,7 +6,7 @@ namespace CinemaApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "1")] // Admin only
+    [Authorize(Roles = "2")] // Admin only
     public class AdminController : ControllerBase
     {
         private readonly IUserService _userService;

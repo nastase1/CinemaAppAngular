@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { 
   Showtime, 
@@ -28,28 +28,69 @@ export class BookingService {
    * Get showtimes for a specific movie
    */
   getShowtimesByMovie(movieId: number): Observable<Showtime[]> {
-    // Mock data for now - will connect to API later
-    return of(this.getMockShowtimes(movieId));
+    return this.http.get<any>(`${environment.apiUrl}/Showtime/movie/${movieId}`)
+      .pipe(
+        tap(response => console.log('Showtimes response:', response)),
+        map(response => {
+          if (response.success && response.data) {
+            return response.data.map((st: any) => ({
+              id: st.showtimeId,
+              movieId: movieId,
+              movieTitle: st.movieTitle,
+              theaterId: 1,
+              theaterName: st.hallName,
+              startTime: st.startTime,
+              endTime: st.startTime, // API doesn't return endTime, will calculate
+              price: 12,
+              availableSeats: st.seats ? st.seats.filter((s: any) => !s.isBooked).length : 50,
+              date: new Date(st.startTime).toISOString().split('T')[0]
+            }));
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('Error fetching showtimes:', error);
+          return of([]);
+        })
+      );
   }
 
   /**
    * Get all showtimes across all movies
    */
   getAllShowtimes(): Showtime[] {
-    const allShowtimes: Showtime[] = [];
-    // Generate showtimes for movies 1-6 (now showing movies)
-    for (let movieId = 1; movieId <= 6; movieId++) {
-      allShowtimes.push(...this.getMockShowtimes(movieId));
-    }
-    return allShowtimes;
+    // This should ideally also fetch from API, but for now return empty
+    // The booking page fetches showtimes by movie anyway
+    return [];
   }
   
   /**
    * Get seats for a specific showtime
    */
   getSeatsByShowtime(showtimeId: number): Observable<Seat[]> {
-    // Mock data for now - will connect to API later
-    return of(this.getMockSeats(showtimeId));
+    return this.http.get<any>(`${environment.apiUrl}/Showtime/${showtimeId}/available-seats`)
+      .pipe(
+        tap(response => console.log('Seats response:', response)),
+        map(response => {
+          if (response.success && response.data) {
+            return response.data.map((seat: any) => ({
+              id: seat.id,
+              showtimeId: showtimeId,
+              row: seat.row,
+              number: seat.number,
+              type: seat.type === 'VIP' ? SeatType.VIP : SeatType.Regular,
+              status: seat.isBooked ? SeatStatus.Booked : SeatStatus.Available,
+              price: seat.type === 'VIP' ? 15 : 10,
+              isSelected: false
+            }));
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('Error fetching seats:', error);
+          return of([]);
+        })
+      );
   }
   
   /**

@@ -1,7 +1,6 @@
 using CinemaApp.Domain.Entities;
 using CinemaApp.Domain.Enums;
 using CinemaApp.Infrastructure.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace CinemaApp.Infrastructure.Seeders
 {
@@ -9,274 +8,154 @@ namespace CinemaApp.Infrastructure.Seeders
     {
         public static async Task SeedAsync(CinemaAppDbContext context)
         {
-            // Check if data already exists
-            if (await context.Users.AnyAsync() || await context.Movies.AnyAsync())
-            {
-                return; // Database already seeded
-            }
-
             // Seed Admin User
-            var adminUser = new User
+            if (!context.Users.Any())
             {
-                FirstName = "Admin",
-                LastName = "User",
-                Email = "admin@cinema.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-                Role = UserRole.Admin,
-                CreatedAt = DateTime.UtcNow
-            };
-            await context.Users.AddAsync(adminUser);
-
-            // Seed Test Customer User
-            var customerUser = new User
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
-                Role = UserRole.Customer,
-                CreatedAt = DateTime.UtcNow
-            };
-            await context.Users.AddAsync(customerUser);
+                var adminUser = new User
+                {
+                    FirstName = "Admin",
+                    LastName = "User",
+                    Email = "admin@cinema.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                    Role = UserRole.Admin
+                };
+                await context.Users.AddAsync(adminUser);
+                await context.SaveChangesAsync();
+            }
 
             // Seed Genres
-            var genres = new List<Genre>
+            if (!context.Genres.Any())
             {
-                new Genre { Name = "Action", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Drama", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Comedy", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Horror", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Sci-Fi", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Romance", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Thriller", CreatedAt = DateTime.UtcNow },
-                new Genre { Name = "Adventure", CreatedAt = DateTime.UtcNow }
-            };
-            await context.Genres.AddRangeAsync(genres);
-
-            // Seed Actors
-            var actors = new List<Actor>
-            {
-                new Actor { FirstName = "Leonardo", LastName = "DiCaprio", CreatedAt = DateTime.UtcNow },
-                new Actor { FirstName = "Tom", LastName = "Hanks", CreatedAt = DateTime.UtcNow },
-                new Actor { FirstName = "Scarlett", LastName = "Johansson", CreatedAt = DateTime.UtcNow },
-                new Actor { FirstName = "Robert", LastName = "Downey Jr.", CreatedAt = DateTime.UtcNow },
-                new Actor { FirstName = "Jennifer", LastName = "Lawrence", CreatedAt = DateTime.UtcNow }
-            };
-            await context.Actors.AddRangeAsync(actors);
-
-            // Seed Directors
-            var directors = new List<Director>
-            {
-                new Director { FirstName = "Christopher", LastName = "Nolan", CreatedAt = DateTime.UtcNow },
-                new Director { FirstName = "Steven", LastName = "Spielberg", CreatedAt = DateTime.UtcNow },
-                new Director { FirstName = "Quentin", LastName = "Tarantino", CreatedAt = DateTime.UtcNow },
-                new Director { FirstName = "Martin", LastName = "Scorsese", CreatedAt = DateTime.UtcNow }
-            };
-            await context.Directors.AddRangeAsync(directors);
-
-            await context.SaveChangesAsync();
+                var genres = new List<Genre>
+                {
+                    new Genre { Name = "Action" },
+                    new Genre { Name = "Drama" },
+                    new Genre { Name = "Comedy" },
+                    new Genre { Name = "Sci-Fi" }
+                };
+                await context.Genres.AddRangeAsync(genres);
+                await context.SaveChangesAsync();
+            }
 
             // Seed Movies
-            var movies = new List<Movie>
+            if (!context.Movies.Any())
             {
-                new Movie
+                var movies = new List<Movie>
                 {
-                    Title = "Inception",
-                    Description = "A thief who steals corporate secrets through dream-sharing technology",
-                    DurationMinutes = 148,
-                    ReleaseDate = new DateTime(2010, 7, 16),
-                    PosterUrl = "/uploads/movies/inception.jpg",
-                    TrailerUrl = "https://youtube.com/watch?v=YoHD9XEInc0",
-                    Rating = 8.8,
-                    CreatedAt = DateTime.UtcNow
-                },
-                new Movie
-                {
-                    Title = "The Dark Knight",
-                    Description = "Batman faces the Joker in Gotham City",
-                    DurationMinutes = 152,
-                    ReleaseDate = new DateTime(2008, 7, 18),
-                    PosterUrl = "/uploads/movies/dark-knight.jpg",
-                    TrailerUrl = "https://youtube.com/watch?v=EXeTwQWrcwY",
-                    Rating = 9.0,
-                    CreatedAt = DateTime.UtcNow
-                },
-                new Movie
-                {
-                    Title = "Interstellar",
-                    Description = "A team of explorers travel through a wormhole in space",
-                    DurationMinutes = 169,
-                    ReleaseDate = new DateTime(2014, 11, 7),
-                    PosterUrl = "/uploads/movies/interstellar.jpg",
-                    TrailerUrl = "https://youtube.com/watch?v=zSWdZVtXT7E",
-                    Rating = 8.6,
-                    CreatedAt = DateTime.UtcNow
-                },
-                new Movie
-                {
-                    Title = "Forrest Gump",
-                    Description = "The presidencies of Kennedy and Johnson through the eyes of an Alabama man",
-                    DurationMinutes = 142,
-                    ReleaseDate = new DateTime(1994, 7, 6),
-                    PosterUrl = "/uploads/movies/forrest-gump.jpg",
-                    TrailerUrl = "https://youtube.com/watch?v=bLvqoHBptjg",
-                    Rating = 8.8,
-                    CreatedAt = DateTime.UtcNow
-                }
-            };
-            await context.Movies.AddRangeAsync(movies);
-            await context.SaveChangesAsync();
-
-            // Seed MovieGenres
-            var movieGenres = new List<MovieGenre>
-            {
-                new MovieGenre { MovieId = movies[0].Id, GenreId = genres[0].Id }, // Inception - Action
-                new MovieGenre { MovieId = movies[0].Id, GenreId = genres[4].Id }, // Inception - Sci-Fi
-                new MovieGenre { MovieId = movies[1].Id, GenreId = genres[0].Id }, // Dark Knight - Action
-                new MovieGenre { MovieId = movies[1].Id, GenreId = genres[6].Id }, // Dark Knight - Thriller
-                new MovieGenre { MovieId = movies[2].Id, GenreId = genres[4].Id }, // Interstellar - Sci-Fi
-                new MovieGenre { MovieId = movies[2].Id, GenreId = genres[7].Id }, // Interstellar - Adventure
-                new MovieGenre { MovieId = movies[3].Id, GenreId = genres[1].Id }, // Forrest Gump - Drama
-            };
-            await context.MovieGenres.AddRangeAsync(movieGenres);
-
-            // Seed MovieActors
-            var movieActors = new List<MovieActor>
-            {
-                new MovieActor { MovieId = movies[0].Id, ActorId = actors[0].Id },
-                new MovieActor { MovieId = movies[2].Id, ActorId = actors[0].Id },
-                new MovieActor { MovieId = movies[3].Id, ActorId = actors[1].Id }
-            };
-            await context.MovieActors.AddRangeAsync(movieActors);
-
-            // Seed MovieDirectors
-            var movieDirectors = new List<MovieDirector>
-            {
-                new MovieDirector { MovieId = movies[0].Id, DirectorId = directors[0].Id },
-                new MovieDirector { MovieId = movies[1].Id, DirectorId = directors[0].Id },
-                new MovieDirector { MovieId = movies[2].Id, DirectorId = directors[0].Id }
-            };
-            await context.MovieDirectors.AddRangeAsync(movieDirectors);
+                    new Movie
+                    {
+                        MovieId = Guid.NewGuid(),
+                        Title = "Inception",
+                        Description = "A mind-bending thriller",
+                        Duration = 148,
+                        ReleaseDate = new DateTime(2010, 7, 16),
+                        PosterUrl = "inception.jpg",
+                        TrailerUrl = "https://youtube.com/watch?v=YoHD9XEInc0",
+                        Rating = 8.8M,
+                        Language = "English",
+                        Country = "USA",
+                        IsActive = true
+                    },
+                    new Movie
+                    {
+                        MovieId = Guid.NewGuid(),
+                        Title = "The Dark Knight",
+                        Description = "Batman battles the Joker",
+                        Duration = 152,
+                        ReleaseDate = new DateTime(2008, 7, 18),
+                        PosterUrl = "dark-knight.jpg",
+                        TrailerUrl = "https://youtube.com/watch?v=EXeTwQWrcwY",
+                        Rating = 9.0M,
+                        Language = "English",
+                        Country = "USA",
+                        IsActive = true
+                    }
+                };
+                await context.Movies.AddRangeAsync(movies);
+                await context.SaveChangesAsync();
+            }
 
             // Seed Cinemas
-            var cinemas = new List<Cinema>
+            if (!context.Cinemas.Any())
             {
-                new Cinema
+                var cinemas = new List<Cinema>
                 {
-                    Name = "Cinema City Center",
-                    Location = "123 Main Street, Bucharest",
-                    CreatedAt = DateTime.UtcNow
-                },
-                new Cinema
-                {
-                    Name = "Movieplex Mall",
-                    Location = "456 Shopping Blvd, Cluj-Napoca",
-                    CreatedAt = DateTime.UtcNow
-                }
-            };
-            await context.Cinemas.AddRangeAsync(cinemas);
-            await context.SaveChangesAsync();
-
-            // Seed Halls - need to load cinemas with tracking
-            var cinema1 = await context.Cinemas.FirstAsync(c => c.Name == "Cinema City Center");
-            var cinema2 = await context.Cinemas.FirstAsync(c => c.Name == "Movieplex Mall");
-
-            var halls = new List<Hall>
-            {
-                new Hall { CinemaId = cinema1.Id, Name = "Hall 1", Cinema = cinema1, CreatedAt = DateTime.UtcNow },
-                new Hall { CinemaId = cinema1.Id, Name = "IMAX Hall", Cinema = cinema1, CreatedAt = DateTime.UtcNow },
-                new Hall { CinemaId = cinema2.Id, Name = "VIP Hall", Cinema = cinema2, CreatedAt = DateTime.UtcNow }
-            };
-            await context.Halls.AddRangeAsync(halls);
-            await context.SaveChangesAsync();
-
-            // Seed Seats
-            var seats = new List<Seat>();
-            foreach (var hall in halls)
-            {
-                int rows = 10; // 10 rows for all halls
-                int seatsPerRow = 10; // 10 seats per row
-
-                for (int row = 0; row < rows; row++)
-                {
-                    char rowLetter = (char)('A' + row);
-                    for (int seatNum = 1; seatNum <= seatsPerRow; seatNum++)
-                    {
-                        SeatType seatType = SeatType.Regular;
-                        if (hall.Name.Contains("VIP") || hall.Name.Contains("IMAX"))
-                        {
-                            seatType = row < 3 ? SeatType.VIP : SeatType.VIP;
-                        }
-
-                        seats.Add(new Seat
-                        {
-                            HallId = hall.Id,
-                            Row = rowLetter,
-                            Number = seatNum,
-                            Type = seatType,
-                            Hall = hall,
-                            CreatedAt = DateTime.UtcNow
-                        });
-                    }
-                }
+                    new Cinema { Name = "Cinema City", Location = "Bucharest" },
+                    new Cinema { Name = "Movieplex", Location = "Cluj-Napoca" }
+                };
+                await context.Cinemas.AddRangeAsync(cinemas);
+                await context.SaveChangesAsync();
             }
-            await context.Seats.AddRangeAsync(seats);
-            await context.SaveChangesAsync();
 
-            // Seed Showtimes (for next 7 days)
-            var showtimes = new List<Showtime>();
-            var startDate = DateTime.Today;
-            var timeSlots = new[] { 10, 14, 18, 21 }; // 10 AM, 2 PM, 6 PM, 9 PM
-
-            for (int day = 0; day < 7; day++)
+            // Seed Halls
+            if (!context.Halls.Any())
             {
-                var date = startDate.AddDays(day);
-                foreach (var hour in timeSlots)
+                var cinema = context.Cinemas.First();
+                var halls = new List<Hall>
                 {
-                    // Add showtime for Inception in Hall 1
-                    var inceptionStart = date.AddHours(hour);
+                    new Hall { CinemaId = cinema.Id, Name = "Hall 1", Cinema = cinema },
+                    new Hall { CinemaId = cinema.Id, Name = "Hall 2", Cinema = cinema }
+                };
+                await context.Halls.AddRangeAsync(halls);
+                await context.SaveChangesAsync();
+            }
+
+            // Seed Showtimes
+            if (!context.Showtimes.Any())
+            {
+                var movie = context.Movies.First();
+                var hall = context.Halls.First();
+
+                var showtimes = new List<Showtime>();
+                for (int i = 0; i < 7; i++)
+                {
                     showtimes.Add(new Showtime
                     {
-                        MovieId = movies[0].Id,
-                        Movie = movies[0],
-                        HallId = halls[0].Id,
-                        Hall = halls[0],
-                        StartTime = inceptionStart,
-                        EndTime = inceptionStart.AddMinutes(movies[0].DurationMinutes),
-                        CreatedAt = DateTime.UtcNow
+                        MovieId = movie.Id,
+                        HallId = hall.Id,
+                        Movie = movie,
+                        Hall = hall,
+                        StartTime = DateTime.Now.AddDays(i).Date.AddHours(18),
+                        EndTime = DateTime.Now.AddDays(i).Date.AddHours(20)
                     });
+                }
+                await context.Showtimes.AddRangeAsync(showtimes);
+                await context.SaveChangesAsync();
+            }
 
-                    // Add showtime for Dark Knight in IMAX Hall
-                    if (hour != 10) // Skip morning slot for IMAX
+            // Seed Seats
+            if (!context.Seats.Any())
+            {
+                var halls = context.Halls.ToList();
+                var seats = new List<Seat>();
+
+                foreach (var hall in halls)
+                {
+                    // Create 5 rows (A-E) with 10 seats each
+                    char[] rows = { 'A', 'B', 'C', 'D', 'E' };
+
+                    foreach (var row in rows)
                     {
-                        var darkKnightStart = date.AddHours(hour);
-                        showtimes.Add(new Showtime
+                        for (int seatNumber = 1; seatNumber <= 10; seatNumber++)
                         {
-                            MovieId = movies[1].Id,
-                            Movie = movies[1],
-                            HallId = halls[1].Id,
-                            Hall = halls[1],
-                            StartTime = darkKnightStart,
-                            EndTime = darkKnightStart.AddMinutes(movies[1].DurationMinutes),
-                            CreatedAt = DateTime.UtcNow
-                        });
+                            // Make row E VIP seats
+                            var seatType = row == 'E' ? SeatType.VIP : SeatType.Regular;
+
+                            seats.Add(new Seat
+                            {
+                                HallId = hall.Id,
+                                Hall = hall,
+                                Row = row,
+                                Number = seatNumber,
+                                Type = seatType
+                            });
+                        }
                     }
                 }
-            }
-            await context.Showtimes.AddRangeAsync(showtimes);
-            await context.SaveChangesAsync();
 
-            // Seed sample review
-            var review = new Review
-            {
-                MovieId = movies[0].Id,
-                UserId = customerUser.Id,
-                Rating = 9,
-                Comment = "Absolutely mind-blowing! One of the best sci-fi movies ever made.",
-                CreatedAt = DateTime.UtcNow
-            };
-            await context.Reviews.AddAsync(review);
-            await context.SaveChangesAsync();
+                await context.Seats.AddRangeAsync(seats);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

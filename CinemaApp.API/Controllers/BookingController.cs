@@ -85,7 +85,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> GetAllBookings()
         {
             var result = await _bookingService.GetAllBookingsAsync();

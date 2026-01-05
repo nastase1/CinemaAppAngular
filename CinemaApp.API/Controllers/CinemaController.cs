@@ -53,7 +53,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> CreateCinema([FromBody] CreateCinemaDto createCinemaDto)
         {
             if (!ModelState.IsValid)
@@ -68,7 +68,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> UpdateCinema(int id, [FromBody] CreateCinemaDto updateCinemaDto)
         {
             if (!ModelState.IsValid)
@@ -83,7 +83,7 @@ namespace CinemaApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "1")] // Admin only
+        [Authorize(Roles = "2")] // Admin only
         public async Task<IActionResult> DeleteCinema(int id)
         {
             var result = await _cinemaService.DeleteCinemaAsync(id);

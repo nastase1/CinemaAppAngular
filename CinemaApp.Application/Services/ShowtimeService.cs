@@ -68,8 +68,8 @@ namespace CinemaApp.Application.Services
 
         public async Task<ServiceResponse<IEnumerable<ShowtimeDetailsDto>>> GetShowtimesByMovieIdAsync(int movieId)
         {
-            var showtimes = await _showtimeGenericRepo.GetAllAsync();
-            var movieShowtimes = showtimes.Where(s => s.MovieId == movieId && s.StartTime > DateTime.UtcNow)
+            var showtimes = await _showtimeRepo.GetShowtimesByMovieAsync(movieId);
+            var movieShowtimes = showtimes.Where(s => s.StartTime > DateTime.UtcNow)
                 .Select(s => new ShowtimeDetailsDto
                 {
                     ShowtimeId = s.Id,
