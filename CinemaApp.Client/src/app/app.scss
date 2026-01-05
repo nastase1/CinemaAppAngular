@@ -1,0 +1,49 @@
+/* Route Transition Animations */
+router-outlet {
+  display: block;
+  
+  + * {
+    animation: fadeInUp 0.5s ease-out;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(225, 29, 72, 0.5);
+  border-radius: 4px;
+  
+  &:hover {
+    background: rgba(225, 29, 72, 0.7);
+  }
+}
+
+/* Focus Visible */
+*:focus-visible {
+  outline: 2px solid rgb(225, 29, 72);
+  outline-offset: 2px;
+}
+
+/* Smooth Transitions */
+a, button {
+  transition: all 0.3s ease;
+}

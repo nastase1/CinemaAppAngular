@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { RegisterRequest } from '../../../core/models/auth.models';
 
 @Component({
@@ -191,6 +192,7 @@ import { RegisterRequest } from '../../../core/models/auth.models';
 export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   formData = signal<RegisterRequest>({
     email: '',
@@ -207,6 +209,7 @@ export class RegisterComponent {
   onSubmit(): void {
     if (!this.acceptedTerms) {
       this.errorMessage.set('Please accept the terms and conditions');
+      this.toastService.warning('Please accept the terms and conditions');
       return;
     }
 
@@ -214,10 +217,12 @@ export class RegisterComponent {
 
     this.authService.register(this.formData()).subscribe({
       next: () => {
+        this.toastService.success('Account created successfully! Welcome aboard!');
         this.router.navigate(['/']);
       },
       error: (error) => {
         this.errorMessage.set(error.message);
+        this.toastService.error(error.message || 'Registration failed. Please try again.');
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Movie } from '../../../core/models/movie.models';
@@ -32,6 +32,14 @@ import { Movie } from '../../../core/models/movie.models';
             <span class="text-white font-bold text-sm">Coming Soon</span>
           </div>
         }
+
+        <!-- Info Button (i) -->
+        <button 
+          (click)="showInfo($event)"
+          class="absolute top-4 left-4 w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 z-20 group/info"
+          title="Movie Info">
+          <i class="fas fa-info text-sm group-hover/info:scale-110 transition-transform"></i>
+        </button>
         
         <!-- Hover Content -->
         <div class="absolute inset-0 flex flex-col justify-end p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 z-10">
@@ -79,6 +87,76 @@ import { Movie } from '../../../core/models/movie.models';
       </div>
     </a>
     </div>
+
+    <!-- Info Modal -->
+    @if (showInfoModal()) {
+      <div class="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"
+           (click)="closeInfo()">
+        <div class="glass-card p-6 rounded-2xl max-w-md mx-4 animate-slideUp"
+             (click)="$event.stopPropagation()">
+          <!-- Header -->
+          <div class="flex items-start justify-between mb-4">
+            <h3 class="text-2xl font-display font-bold text-white">
+              {{ movie.title }}
+            </h3>
+            <button (click)="closeInfo()" 
+                    class="text-slate-400 hover:text-white transition-colors">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Rating & Duration -->
+          <div class="flex items-center gap-4 mb-4">
+            @if (movie.rating > 0) {
+              <div class="flex items-center gap-1 bg-cinema-red/20 px-3 py-1 rounded-full">
+                <i class="fas fa-star text-yellow-400"></i>
+                <span class="text-white font-bold">{{ movie.rating }}</span>
+              </div>
+            }
+            <span class="text-slate-300">
+              <i class="fas fa-clock mr-1"></i>
+              {{ movie.duration }} min
+            </span>
+            <span class="text-slate-300">
+              {{ movie.releaseDate | date: 'yyyy' }}
+            </span>
+          </div>
+
+          <!-- Genres -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            @for (genre of movie.genre; track genre) {
+              <span class="px-3 py-1 bg-white/10 rounded-full text-slate-300 text-sm">
+                {{ genre }}
+              </span>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="mb-4">
+            <h4 class="text-cinema-red font-semibold mb-2">Description</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              {{ movie.description }}
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3">
+            <a [routerLink]="['/movies', movie.id]"
+               class="flex-1 btn-neon text-center"
+               (click)="closeInfo()">
+              <i class="fas fa-info-circle mr-2"></i>
+              Full Details
+            </a>
+            <a [routerLink]="['/booking', movie.id]"
+               class="flex-1 bg-cinema-red hover:bg-cinema-red-dark text-white py-3 px-4 rounded-lg font-semibold transition-colors text-center"
+               (click)="closeInfo()">
+              <i class="fas fa-ticket-alt mr-2"></i>
+              Book Now
+            </a>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     .movie-card {
@@ -109,4 +187,15 @@ import { Movie } from '../../../core/models/movie.models';
 })
 export class MovieCardComponent {
   @Input({ required: true }) movie!: Movie;
+  showInfoModal = signal(false);
+
+  showInfo(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.showInfoModal.set(true);
+  }
+
+  closeInfo() {
+    this.showInfoModal.set(false);
+  }
 }

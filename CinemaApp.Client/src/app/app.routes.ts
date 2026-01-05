@@ -6,6 +6,8 @@ import { BookingComponent } from './features/booking/booking.component';
 import { MovieDetailsComponent } from './features/movie-details/movie-details.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { AdminComponent } from './features/admin/admin.component';
+import { MoviesComponent } from './features/movies/movies.component';
+import { ShowtimesComponent } from './features/showtimes/showtimes.component';
 import { authGuard, guestGuard, adminGuard } from './core/guards/auth.guards';
 
 export const routes: Routes = [
@@ -29,6 +31,16 @@ export const routes: Routes = [
     path: 'movies/:id', 
     component: MovieDetailsComponent
   },
+  { 
+    path: 'movies', 
+    component: MoviesComponent
+  },
+  
+  // Showtimes route
+  { 
+    path: 'showtimes', 
+    component: ShowtimesComponent
+  },
   
   // Booking route
   { 
@@ -49,10 +61,6 @@ export const routes: Routes = [
     component: AdminComponent,
     canActivate: [adminGuard]
   },
-  
-  // Placeholder routes (will be implemented in later steps)
-  { path: 'movies', component: HomeComponent }, // TODO: Create movies list component
-  { path: 'showtimes', component: HomeComponent }, // TODO: Create showtimes component
   
   // Catch all - redirect to home
   { path: '**', redirectTo: '/home' }

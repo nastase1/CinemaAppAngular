@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { LoginRequest } from '../../../core/models/auth.models';
 
 @Component({
@@ -146,6 +147,7 @@ import { LoginRequest } from '../../../core/models/auth.models';
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   credentials = signal<LoginRequest>({
     email: '',
@@ -157,6 +159,7 @@ export class LoginComponent {
 
   onSubmit(): void {
     if (!this.credentials().email || !this.credentials().password) {
+      this.toastService.warning('Please fill in all fields');
       return;
     }
 
@@ -164,10 +167,12 @@ export class LoginComponent {
 
     this.authService.login(this.credentials()).subscribe({
       next: () => {
+        this.toastService.success('Welcome back! Login successful.');
         this.router.navigate(['/']);
       },
       error: (error) => {
         this.errorMessage.set(error.message);
+        this.toastService.error(error.message || 'Login failed. Please try again.');
       }
     });
   }

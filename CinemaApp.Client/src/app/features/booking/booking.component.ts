@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MovieService } from '../../core/services/movie.service';
 import { BookingService } from '../../core/services/booking.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { SeatMapComponent } from '../../shared/components/seat-map/seat-map.component';
 import { Movie } from '../../core/models/movie.models';
 import { Showtime, Seat } from '../../core/models/booking.models';
@@ -236,6 +237,7 @@ export class BookingComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private movieService = inject(MovieService);
+  private toastService = inject(ToastService);
   protected bookingService = inject(BookingService);
   protected authService = inject(AuthService);
   
@@ -291,13 +293,13 @@ export class BookingComponent implements OnInit {
     const selectedSeats = this.bookingService.selectedSeats();
     
     if (!showtime || selectedSeats.length === 0) {
-      alert('Please select seats first');
+      this.toastService.warning('Please select seats first');
       return;
     }
     
     // Check if user is authenticated
     if (!this.authService.isAuthenticated()) {
-      alert('Please login to complete booking');
+      this.toastService.error('Please login to complete booking');
       this.router.navigate(['/auth/login']);
       return;
     }
@@ -314,19 +316,19 @@ export class BookingComponent implements OnInit {
     this.bookingService.createBooking(request).subscribe({
       next: (response) => {
         if (response.success) {
-          alert('Booking confirmed! Check your profile for ticket details.');
+          this.toastService.success('Booking confirmed! Check your profile for ticket details.');
           this.router.navigate(['/profile']);
         } else {
-          alert('Booking failed: ' + response.message);
+          this.toastService.error('Booking failed: ' + response.message);
         }
       },
       error: (error) => {
         console.error('Booking error:', error);
         if (error.status === 401) {
-          alert('Your session has expired. Please login again.');
+          this.toastService.error('Your session has expired. Please login again.');
           this.authService.logout();
         } else {
-          alert('Booking failed: ' + (error.error?.message || 'Unknown error'));
+          this.toastService.error('Booking failed: ' + (error.error?.message || 'Unknown error'));
         }
       }
     });

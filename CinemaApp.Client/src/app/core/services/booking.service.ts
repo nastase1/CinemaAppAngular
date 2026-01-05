@@ -31,6 +31,18 @@ export class BookingService {
     // Mock data for now - will connect to API later
     return of(this.getMockShowtimes(movieId));
   }
+
+  /**
+   * Get all showtimes across all movies
+   */
+  getAllShowtimes(): Showtime[] {
+    const allShowtimes: Showtime[] = [];
+    // Generate showtimes for movies 1-6 (now showing movies)
+    for (let movieId = 1; movieId <= 6; movieId++) {
+      allShowtimes.push(...this.getMockShowtimes(movieId));
+    }
+    return allShowtimes;
+  }
   
   /**
    * Get seats for a specific showtime
