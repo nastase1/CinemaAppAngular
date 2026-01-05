@@ -11,7 +11,7 @@ using CinemaApp.Shared.DTOs.Auth;
 
 namespace CinemaApp.Application.Services
 {
-    public class AuthenticationService: IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly IUserRepository _userRepo;
         private readonly ITokenService _tokenService;
@@ -22,11 +22,11 @@ namespace CinemaApp.Application.Services
             _tokenService = tokenService;
         }
 
-        public async Task<ServiceResponse<string>> RegisterAsync(RegisterRequestDto request)
+        public async Task<ServiceResponse<LoginResponseDto>> RegisterAsync(RegisterRequestDto request)
         {
             var existingUser = await _userRepo.GetByEmailAsync(request.Email);
             if (existingUser != null)
-                return ServiceResponse<string>.Fail("Email already registered.");
+                return ServiceResponse<LoginResponseDto>.Fail("Email already registered.");
 
             var user = new User
             {
@@ -38,7 +38,23 @@ namespace CinemaApp.Application.Services
             };
 
             await _userRepo.AddAsync(user);
-            return ServiceResponse<string>.Ok("User registered successfully.");
+
+            // Generate token and return user info
+            var token = _tokenService.GenerateToken(user);
+
+            return ServiceResponse<LoginResponseDto>.Ok(new LoginResponseDto
+            {
+                Token = token,
+                Expiration = DateTime.UtcNow.AddHours(24).ToString("o"),
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = user.Role.ToString()
+                }
+            });
         }
 
         public async Task<ServiceResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request)
@@ -49,11 +65,18 @@ namespace CinemaApp.Application.Services
 
             var token = _tokenService.GenerateToken(user);
 
-            return ServiceResponse<LoginResponseDto>.Ok(new LoginResponseDto 
-            { 
-                Token = token, 
-                Email = user.Email,
-                Name = $"{user.FirstName} {user.LastName}"
+            return ServiceResponse<LoginResponseDto>.Ok(new LoginResponseDto
+            {
+                Token = token,
+                Expiration = DateTime.UtcNow.AddHours(24).ToString("o"),
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = user.Role.ToString()
+                }
             });
         }
     }

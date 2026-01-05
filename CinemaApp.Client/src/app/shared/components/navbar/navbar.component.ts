@@ -39,6 +39,11 @@ import { AuthService } from '../../../core/services/auth.service';
           <div class="flex items-center space-x-4">
             @if (isLoggedIn()) {
               <div class="hidden md:flex items-center space-x-4">
+                @if (authService.isAdmin()) {
+                  <a routerLink="/admin" routerLinkActive="text-cinema-red" class="text-slate-300 hover:text-cinema-red transition-colors">
+                    <i class="fas fa-shield-alt text-xl"></i>
+                  </a>
+                }
                 <a routerLink="/profile" class="text-slate-300 hover:text-cinema-red transition-colors">
                   <i class="fas fa-user text-xl"></i>
                 </a>
@@ -84,6 +89,13 @@ import { AuthService } from '../../../core/services/auth.service';
                  class="block text-slate-300 hover:text-cinema-red transition-colors py-2">
                 Profile
               </a>
+              @if (authService.isAdmin()) {
+                <a routerLink="/admin" (click)="toggleMenu()"
+                   class="block text-slate-300 hover:text-cinema-red transition-colors py-2">
+                  <i class="fas fa-shield-alt mr-2"></i>
+                  Admin Panel
+                </a>
+              }
               <button (click)="logout(); toggleMenu()" 
                       class="w-full btn-neon ripple py-3 mt-4">
                 Logout
@@ -110,7 +122,7 @@ import { AuthService } from '../../../core/services/auth.service';
   `]
 })
 export class NavbarComponent {
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   
   mobileMenuOpen = signal(false);
   

@@ -33,6 +33,11 @@ export class AuthService {
 
   constructor() {
     // Check token validity on service initialization
+    console.log('AuthService initialized');
+    const storedUser = this.getUserFromStorage();
+    console.log('User loaded from storage:', storedUser);
+    const storedToken = this.getToken();
+    console.log('Token loaded from storage:', storedToken ? 'Token exists' : 'No token');
     this.checkTokenExpiration();
   }
 
@@ -92,11 +97,33 @@ export class AuthService {
    * Handle successful authentication
    */
   private handleAuthSuccess(response: AuthResponse): void {
+    console.log('Full response received:', response);
+    console.log('Response data:', response.data);
+    
+    if (!response || !response.data) {
+      console.error('Invalid response structure:', response);
+      throw new Error('Invalid authentication response');
+    }
+    
+    if (!response.data.token) {
+      console.error('Token missing from response:', response.data);
+      throw new Error('Token not found in response');
+    }
+    
+    if (!response.data.user) {
+      console.error('User missing from response:', response.data);
+      throw new Error('User data not found in response');
+    }
+    
     console.log('Storing token:', response.data.token);
     console.log('Storing user:', response.data.user);
+    
     localStorage.setItem(this.TOKEN_KEY, response.data.token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(response.data.user));
     this.currentUserSignal.set(response.data.user);
+    
+    console.log('Token stored in localStorage:', localStorage.getItem(this.TOKEN_KEY));
+    console.log('User stored in localStorage:', localStorage.getItem(this.USER_KEY));
   }
 
   /**
@@ -104,13 +131,18 @@ export class AuthService {
    */
   private getUserFromStorage(): User | null {
     const userJson = localStorage.getItem(this.USER_KEY);
+    console.log('getUserFromStorage - raw userJson:', userJson);
     if (userJson) {
       try {
-        return JSON.parse(userJson);
-      } catch {
+        const user = JSON.parse(userJson);
+        console.log('getUserFromStorage - parsed user:', user);
+        return user;
+      } catch (error) {
+        console.error('getUserFromStorage - parse error:', error);
         return null;
       }
     }
+    console.log('getUserFromStorage - no user in storage');
     return null;
   }
 

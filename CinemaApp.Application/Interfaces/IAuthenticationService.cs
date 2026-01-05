@@ -9,7 +9,7 @@ namespace CinemaApp.Application.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<ServiceResponse<string>> RegisterAsync(RegisterRequestDto request);
+        Task<ServiceResponse<LoginResponseDto>> RegisterAsync(RegisterRequestDto request);
         Task<ServiceResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request);
     }
 }

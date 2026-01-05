@@ -9,7 +9,8 @@ import { Movie } from '../../../core/models/movie.models';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="movie-card group animate-fade-in">
-      <div class="relative overflow-hidden rounded-2xl aspect-[2/3] bg-midnight-800">
+      <a [routerLink]="['/movies', movie.id]" class="block">
+        <div class="relative overflow-hidden rounded-2xl aspect-[2/3] bg-midnight-800">
         <!-- Poster Image -->
         <img 
           [src]="movie.posterUrl" 
@@ -76,6 +77,7 @@ import { Movie } from '../../../core/models/movie.models';
         <!-- Shimmer Effect on Load -->
         <div class="absolute inset-0 shimmer pointer-events-none"></div>
       </div>
+    </a>
     </div>
   `,
   styles: [`

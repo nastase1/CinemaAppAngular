@@ -3,7 +3,10 @@ import { HomeComponent } from './features/home/home.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { BookingComponent } from './features/booking/booking.component';
-import { authGuard, guestGuard } from './core/guards/auth.guards';
+import { MovieDetailsComponent } from './features/movie-details/movie-details.component';
+import { ProfileComponent } from './features/profile/profile.component';
+import { AdminComponent } from './features/admin/admin.component';
+import { authGuard, guestGuard, adminGuard } from './core/guards/auth.guards';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -21,17 +24,35 @@ export const routes: Routes = [
     canActivate: [guestGuard]
   },
   
+  // Movie routes
+  { 
+    path: 'movies/:id', 
+    component: MovieDetailsComponent
+  },
+  
   // Booking route
   { 
     path: 'booking/:id', 
     component: BookingComponent
   },
   
+  // Profile route (protected)
+  { 
+    path: 'profile', 
+    component: ProfileComponent,
+    canActivate: [authGuard]
+  },
+  
+  // Admin route (admin only)
+  { 
+    path: 'admin', 
+    component: AdminComponent,
+    canActivate: [adminGuard]
+  },
+  
   // Placeholder routes (will be implemented in later steps)
-  { path: 'movies', component: HomeComponent }, // TODO: Create movies component
-  { path: 'movies/:id', component: HomeComponent }, // TODO: Create movie details component
+  { path: 'movies', component: HomeComponent }, // TODO: Create movies list component
   { path: 'showtimes', component: HomeComponent }, // TODO: Create showtimes component
-  { path: 'profile', component: HomeComponent }, // TODO: Create profile component
   
   // Catch all - redirect to home
   { path: '**', redirectTo: '/home' }
