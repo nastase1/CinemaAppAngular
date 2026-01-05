@@ -48,17 +48,14 @@ export interface BookingRequest {
 }
 
 export interface Booking {
-  id: number;
-  userId: number;
-  showtimeId: number;
+  bookingId: number;
+  referenceCode: string;
   movieTitle: string;
-  theaterName: string;
-  showtime: string;
+  hallName: string;
+  showtimeStart: string;
+  totalPrice: number;
+  status: string;
   seats: string[];
-  totalAmount: number;
-  bookingDate: string;
-  qrCode?: string;
-  status: 'Confirmed' | 'Cancelled' | 'Completed';
 }
 
 export interface BookingResponse {

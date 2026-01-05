@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MovieService } from '../../core/services/movie.service';
@@ -74,12 +74,16 @@ import { Movie } from '../../core/models/movie.models';
                   Book Tickets
                 </button>
                 @if (featuredMovie.trailerUrl) {
-                  <button class="glass-card px-8 py-4 text-lg font-semibold hover:bg-white/10 transition-all duration-300 group">
+                  <button 
+                    (click)="showTrailer.set(true)"
+                    class="glass-card px-8 py-4 text-lg font-semibold hover:bg-white/10 transition-all duration-300 group">
                     <i class="fas fa-play mr-2 group-hover:text-cinema-red transition-colors"></i>
                     Watch Trailer
                   </button>
                 }
-                <button class="glass-card px-6 py-4 hover:bg-white/10 transition-all duration-300">
+                <button 
+                  (click)="showMovieInfo.set(true)"
+                  class="glass-card px-6 py-4 hover:bg-white/10 transition-all duration-300">
                   <i class="fas fa-info-circle text-xl"></i>
                 </button>
               </div>
@@ -190,6 +194,144 @@ import { Movie } from '../../core/models/movie.models';
         </div>
       </div>
     </div>
+
+    <!-- Trailer Modal -->
+    @if (showTrailer()) {
+      <div 
+        class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in"
+        (click)="showTrailer.set(false)">
+        <div class="relative max-w-5xl w-full" (click)="$event.stopPropagation()">
+          <button 
+            (click)="showTrailer.set(false)"
+            class="absolute -top-12 right-0 text-white hover:text-cinema-red transition-colors">
+            <i class="fas fa-times text-3xl"></i>
+          </button>
+          <div class="aspect-video bg-midnight-900 rounded-2xl overflow-hidden glass-card">
+            @if (featuredMovie && featuredMovie.trailerUrl) {
+              <iframe 
+                [src]="getYouTubeEmbedUrl(featuredMovie.trailerUrl!)"
+                class="w-full h-full"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+            } @else {
+              <div class="w-full h-full flex items-center justify-center">
+                <i class="fas fa-play-circle text-cinema-red text-8xl"></i>
+                <p class="text-white text-xl ml-4">Trailer Player</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Movie Info Modal -->
+    @if (showMovieInfo() && featuredMovie) {
+      <div 
+        class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in overflow-y-auto"
+        (click)="showMovieInfo.set(false)">
+        <div class="relative max-w-4xl w-full my-8" (click)="$event.stopPropagation()">
+          <button 
+            (click)="showMovieInfo.set(false)"
+            class="absolute -top-12 right-0 text-white hover:text-cinema-red transition-colors">
+            <i class="fas fa-times text-3xl"></i>
+          </button>
+          
+          <div class="glass-card rounded-2xl overflow-hidden">
+            <!-- Header with Backdrop -->
+            <div class="relative h-64">
+              <img 
+                [src]="featuredMovie.backdropUrl" 
+                [alt]="featuredMovie.title"
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-midnight-900 to-transparent"></div>
+              <div class="absolute bottom-6 left-6">
+                <h2 class="text-3xl font-display font-bold text-white mb-2">{{ featuredMovie.title }}</h2>
+                <div class="flex items-center gap-4 text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <span class="font-bold text-white">{{ featuredMovie.rating }}</span>
+                  </div>
+                  <span>{{ featuredMovie.duration }} min</span>
+                  <span>{{ featuredMovie.releaseDate | date: 'yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8 space-y-6">
+              <!-- Genres -->
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-3">Genres</h3>
+                <div class="flex flex-wrap gap-2">
+                  @for (genre of featuredMovie.genre; track genre) {
+                    <span class="px-4 py-2 bg-cinema-red/20 border border-cinema-red/30 rounded-full text-cinema-red font-semibold">
+                      {{ genre }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-3">Overview</h3>
+                <p class="text-slate-300 leading-relaxed">{{ featuredMovie.description }}</p>
+              </div>
+
+              <!-- Details Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card p-4 rounded-xl">
+                  <p class="text-slate-400 text-sm mb-1">Director</p>
+                  <p class="text-white font-semibold">{{ featuredMovie.director }}</p>
+                </div>
+                <div class="glass-card p-4 rounded-xl">
+                  <p class="text-slate-400 text-sm mb-1">Language</p>
+                  <p class="text-white font-semibold">{{ featuredMovie.language }}</p>
+                </div>
+                <div class="glass-card p-4 rounded-xl">
+                  <p class="text-slate-400 text-sm mb-1">Release Date</p>
+                  <p class="text-white font-semibold">{{ featuredMovie.releaseDate | date: 'longDate' }}</p>
+                </div>
+                <div class="glass-card p-4 rounded-xl">
+                  <p class="text-slate-400 text-sm mb-1">Rating</p>
+                  <p class="text-white font-semibold">{{ featuredMovie.rating }}/10</p>
+                </div>
+              </div>
+
+              <!-- Cast -->
+              @if (featuredMovie.cast && featuredMovie.cast.length > 0) {
+                <div>
+                  <h3 class="text-lg font-semibold text-white mb-3">Cast</h3>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    @for (actor of featuredMovie.cast.slice(0, 8); track actor) {
+                      <div class="glass-card p-3 rounded-xl text-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-cinema-red to-purple-600 rounded-full mx-auto mb-2 flex items-center justify-center">
+                          <i class="fas fa-user text-white"></i>
+                        </div>
+                        <p class="text-sm text-white font-medium truncate">{{ actor }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Action Button -->
+              <div class="pt-4">
+                <button 
+                  [routerLink]="['/booking', featuredMovie.id]"
+                  (click)="showMovieInfo.set(false)"
+                  class="btn-neon ripple w-full py-4 text-lg font-semibold">
+                  <i class="fas fa-ticket-alt mr-2"></i>
+                  Book Tickets
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     @keyframes slow-zoom {
@@ -218,9 +360,26 @@ export class HomeComponent implements OnInit {
   nowShowingMovies: Movie[] = [];
   comingSoonMovies: Movie[] = [];
   
+  showTrailer = signal(false);
+  showMovieInfo = signal(false);
+  
   ngOnInit() {
     this.featuredMovie = this.movieService.getFeaturedMovie();
     this.nowShowingMovies = this.movieService.getNowShowingMovies();
     this.comingSoonMovies = this.movieService.getComingSoonMovies();
+  }
+
+  getYouTubeEmbedUrl(url: string): string {
+    try {
+      const videoId = url.includes('youtu.be') 
+        ? url.split('youtu.be/')[1]?.split('?')[0]
+        : url.split('v=')[1]?.split('&')[0];
+      
+      return videoId 
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
+        : '';
+    } catch {
+      return '';
+    }
   }
 }

@@ -19,10 +19,20 @@ import { environment } from '../../../environments/environment';
           <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <div class="mb-8 animate-slide-up">
-              <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                My Profile
-              </h1>
-              <p class="text-slate-400 text-lg">Manage your account and bookings</p>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+                    My Profile
+                  </h1>
+                  <p class="text-slate-400 text-lg">Manage your account and bookings</p>
+                </div>
+                <a 
+                  routerLink="/home" 
+                  class="glass-card px-6 py-3 hover:bg-white/10 transition-all rounded-xl font-semibold group">
+                  <i class="fas fa-arrow-left mr-2 group-hover:text-cinema-red transition-colors"></i>
+                  Back to Home
+                </a>
+              </div>
             </div>
 
             <!-- Tabs -->
@@ -64,7 +74,7 @@ import { environment } from '../../../environments/environment';
                       <p class="text-slate-400">Loading your bookings...</p>
                     </div>
                   } @else if (userBookings().length > 0) {
-                    @for (booking of userBookings(); track booking.id) {
+                    @for (booking of userBookings(); track booking.bookingId) {
                       <div class="glass-card p-6 rounded-2xl hover:bg-white/10 transition-all">
                         <div class="flex flex-col lg:flex-row gap-6">
                           <!-- QR Code -->
@@ -99,7 +109,8 @@ import { environment } from '../../../environments/environment';
                               </div>
                               <div class="text-right">
                                 <p class="text-sm text-slate-400">Booking ID</p>
-                                <p class="text-white font-mono font-bold">#{{ booking.id }}</p>
+                                <p class="text-white font-mono font-bold">#{{ booking.bookingId }}</p>
+                                <p class="text-xs text-slate-500 mt-1">{{ booking.referenceCode }}</p>
                               </div>
                             </div>
 
@@ -110,7 +121,7 @@ import { environment } from '../../../environments/environment';
                                 </div>
                                 <div>
                                   <p class="text-xs text-slate-400">Date & Time</p>
-                                  <p class="text-white font-semibold">{{ booking.showtime }}</p>
+                                  <p class="text-white font-semibold">{{ booking.showtimeStart | date:'MMM d, y - h:mm a' }}</p>
                                 </div>
                               </div>
 
@@ -120,7 +131,7 @@ import { environment } from '../../../environments/environment';
                                 </div>
                                 <div>
                                   <p class="text-xs text-slate-400">Theater</p>
-                                  <p class="text-white font-semibold">{{ booking.theaterName }}</p>
+                                  <p class="text-white font-semibold">{{ booking.hallName }}</p>
                                 </div>
                               </div>
 
@@ -138,7 +149,7 @@ import { environment } from '../../../environments/environment';
                             <div class="flex items-center justify-between pt-4 border-t border-white/10">
                               <div>
                                 <p class="text-sm text-slate-400">Total Amount</p>
-                                <p class="text-2xl font-bold text-cinema-red">\${{ booking.totalAmount }}</p>
+                                <p class="text-2xl font-bold text-cinema-red">\${{ booking.totalPrice }}</p>
                               </div>
                               <div class="flex gap-3">
                                 @if (booking.status === 'Confirmed') {
@@ -388,45 +399,6 @@ export class ProfileComponent implements OnInit {
   userBookings = signal<Booking[]>([]);
   isLoadingBookings = signal(false);
 
-  mockBookings: Booking[] = [
-    {
-      id: 1001,
-      userId: 1,
-      showtimeId: 1,
-      movieTitle: 'Dune: Part Three',
-      theaterName: 'Theater 1',
-      showtime: 'Jan 15, 2026 - 7:30 PM',
-      seats: ['D5', 'D6'],
-      totalAmount: 36,
-      bookingDate: '2026-01-10',
-      status: 'Confirmed'
-    },
-    {
-      id: 1002,
-      userId: 1,
-      showtimeId: 2,
-      movieTitle: 'Oppenheimer',
-      theaterName: 'Theater 2',
-      showtime: 'Jan 20, 2026 - 4:00 PM',
-      seats: ['E8'],
-      totalAmount: 18,
-      bookingDate: '2026-01-12',
-      status: 'Confirmed'
-    },
-    {
-      id: 1003,
-      userId: 1,
-      showtimeId: 3,
-      movieTitle: 'The Matrix Resurrections',
-      theaterName: 'Theater 3',
-      showtime: 'Dec 28, 2025 - 9:00 PM',
-      seats: ['F10', 'F11', 'F12'],
-      totalAmount: 54,
-      bookingDate: '2025-12-20',
-      status: 'Completed'
-    }
-  ];
-
   ngOnInit() {
     // Check if user is authenticated, if not redirect to login
     if (!this.authService.isAuthenticated()) {
@@ -455,15 +427,18 @@ export class ProfileComponent implements OnInit {
     this.isLoadingBookings.set(true);
     this.http.get<any>(`${environment.apiUrl}/Booking/user/my-bookings`).subscribe({
       next: (response) => {
+        console.log('Bookings response:', response);
         if (response.success && response.data) {
           this.userBookings.set(response.data);
+        } else {
+          this.userBookings.set([]);
         }
         this.isLoadingBookings.set(false);
       },
       error: (error) => {
         console.error('Error loading bookings:', error);
-        // Use mock data as fallback
-        this.userBookings.set(this.mockBookings);
+        this.toastService.error('Failed to load bookings');
+        this.userBookings.set([]);
         this.isLoadingBookings.set(false);
       }
     });
