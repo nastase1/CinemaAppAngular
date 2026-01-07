@@ -3,7 +3,7 @@
 **Course:** Arhitectura Aplicațiilor Front-End folosind Angular (2025-2026)  
 **Team:** Năstase Teodor, Negoiță Andrei, Oană Sebastian  
 **Theme:** Cinema App - Seat Booking System  
-**Demo Video:** [\[Add YouTube link here\]](https://youtu.be/Ni_0qzJqCxs)
+**Demo Video:** [\[Youtube link\]](https://youtu.be/Ni_0qzJqCxs)
 
 ---
 
@@ -216,7 +216,7 @@ ng serve
 - **API Endpoints:** 25+ REST endpoints
 - **Database Tables:** 8 entities
 - **Lines of Code:** ~5000+ (Frontend), ~3000+ (Backend)
-- **Git Commits:** 24
+- **Git Commits:** 25
 
 ---
 
